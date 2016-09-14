@@ -5,4 +5,9 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="black_overlay">#66000000</color>
+
+    <!--Game colors-->
+    <color name="glass_background">#000000</color>
+    <color name="glass_grid">#cccccc</color>
+    <!--Figures colors-->
 </resources>

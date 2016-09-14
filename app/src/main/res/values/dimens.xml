@@ -5,4 +5,6 @@
 
     <!--Default font size-->
     <dimen name="font_TitleLarge">42sp</dimen>
+    <!--Default padding-->
+    <dimen name="padding_default">16dp</dimen>
 </resources>

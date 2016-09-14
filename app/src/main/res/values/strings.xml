@@ -7,9 +7,8 @@
     <string name="game_menu_records">Records</string>
     <string name="game_menu_exit">Exit</string>
 
-    <string name="title_activity_splash">SplashActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-
-    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <!--Game activity elements-->
+    <string name="game_activity_next_figure">Next Figure</string>
+    <string name="game_activity_scores">Scores</string>
+    <string name="game_activity_level">Level</string>
 </resources>
