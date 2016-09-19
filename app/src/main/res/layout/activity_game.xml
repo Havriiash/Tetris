@@ -14,7 +14,8 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:layout_weight="1">
-            <com.tetris.dmitriy.tetris.game.Glass
+            <com.tetris.dmitriy.tetris.game.GlassView
+                android:id="@+id/ActivityGame_GlassView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </LinearLayout>
@@ -84,6 +85,12 @@
            android:text="Rotate"/>
        <Button
            android:id="@+id/ActivityGame_FallDownBtn"
+           android:layout_weight="1"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="Fall"/>
+       <Button
+           android:id="@+id/ActivityGame_DownBtn"
            android:layout_weight="1"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
