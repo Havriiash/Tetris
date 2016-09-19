@@ -2,6 +2,8 @@ package com.tetris.dmitriy.tetris.game.figures;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 
 /**
@@ -10,13 +12,13 @@ import android.graphics.Rect;
 public class FigureI extends Figure {
 
     /**
-     * 0 -  0 1 0 0
-     *      0 1 0 0
-     *      0 1 0 0
-     *      0 1 0 0
+     * 0 -  1 0 0 0
+     *      1 0 0 0
+     *      1 0 0 0
+     *      1 0 0 0
      *
-    /* 1 -  0 0 0 0
-     *      1 1 1 1
+     * 1 -  1 1 1 1
+     *      0 0 0 0
      *      0 0 0 0
      *      0 0 0 0
      */
@@ -27,16 +29,17 @@ public class FigureI extends Figure {
     }
 
     @Override
-    protected void setOrientation(int position) {
-        switch (position) {
+    public void setOrientation(int position) {
+        super.setOrientation(position);
+        switch (mCurrentOrientation) {
             case 0:
                 for (int i = 0; i < HEIGHT; i++) {
-                    mFigure[i][1] = 1;
+                    mFigure[i][0] = 1;
                 }
                 break;
             case 1:
                 for (int i = 0; i < WIDTH; i++) {
-                    mFigure[1][i] = 1;
+                    mFigure[0][i] = 1;
                 }
                 break;
             default:

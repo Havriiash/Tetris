@@ -5,16 +5,17 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 /**
  * Created by Dmitriy on 01.09.2016.
  */
+
 public abstract class Figure {
     public static final int WIDTH = 4;
     public static final int HEIGHT = 4;
+
+    private Point mCurrentCords;
 
     /**
      * currentOrientation - I mean a rotate angle of current figure
@@ -26,23 +27,12 @@ public abstract class Figure {
     protected int mCurrentOrientation = 0;
     protected int[][] mFigure;
 
-    protected Point mCurrentCords;
+    protected int mPrevOrientation = 0;
     protected Paint mPaint;
 
-    /** Color, which figure can have */
-    private List<Integer> mColors = Arrays.asList(
-//            TODO: need move values for color into an application constants
-            new Integer(Color.parseColor("#339933")),
-            new Integer(Color.parseColor("#0099cc")),
-            new Integer(Color.parseColor("#cc33ff")),
-            new Integer(Color.parseColor("#cc0099")),
-            new Integer(Color.parseColor("#ff5050")),
-            new Integer(Color.parseColor("#ffcc66"))
-    );
-
     public Figure() {
-        mFigure = new int[WIDTH][HEIGHT];
-        mCurrentCords = new Point(3, 0);
+        mFigure = new int[HEIGHT][WIDTH];
+        mCurrentCords = new Point(4, 0);
 
         setOrientation(mCurrentOrientation);
 
@@ -51,7 +41,7 @@ public abstract class Figure {
         mPaint.setColor(randColor());
     }
 
-    protected void resetFigure() {
+    private void resetFigure() {
         for (int i = 0; i < WIDTH; i++) {
             for (int j = 0; j < HEIGHT; j++) {
                 mFigure[i][j] = 0;
@@ -59,13 +49,37 @@ public abstract class Figure {
         }
     }
 
-    protected abstract void setOrientation(int position);
+    public void setOrientation(int position) {
+        resetFigure();
+        mCurrentOrientation = position;
+    }
 
     public abstract int getOrientation();
 
     public abstract Bitmap draw(int marginHorizontal, int marginVertical);
 
+    public int randColor() {
+        Random rnd = new Random();
+        return Color.argb(200, rnd.nextInt(250), rnd.nextInt(250), rnd.nextInt(250));
+    }
+
+    public int[][] getFigure() {
+        return mFigure;
+    }
+
+    public Paint getPaint() { return mPaint; }
+
+    public void setCurrentCords(Point p) {
+        mCurrentCords.x = p.x;
+        mCurrentCords.y = p.y;
+    }
+
+    public int getX() { return mCurrentCords.x; }
+
+    public int getY() { return mCurrentCords.y; }
+
     public void rotate() {
+        mPrevOrientation = mCurrentOrientation;
         if (mCurrentOrientation == getOrientation() - 1) {
             mCurrentOrientation = 0;
         } else {
@@ -75,14 +89,8 @@ public abstract class Figure {
         setOrientation(mCurrentOrientation);
     }
 
-    public int randColor() {
-        Random rnd = new Random();
-        return mColors.get(rnd.nextInt(mColors.size()));
+    public int getCurrentOrientation() {
+        return mCurrentOrientation;
     }
 
-    public int[][] getFigure() {
-        return mFigure;
-    }
-
-    public Paint getPaint() { return mPaint; }
 }
