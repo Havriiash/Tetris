@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 public class SplashActivity extends Activity {
 
-    private static final int DELAY = 5 * 1000;
+    private static final int DELAY = 1 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
