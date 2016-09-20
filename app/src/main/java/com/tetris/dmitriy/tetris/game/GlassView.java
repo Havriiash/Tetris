@@ -3,11 +3,14 @@ package com.tetris.dmitriy.tetris.game;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.view.View;
+import android.widget.ImageView;
 
 import com.tetris.dmitriy.tetris.R;
 import com.tetris.dmitriy.tetris.game.figures.Figure;
@@ -16,17 +19,22 @@ import com.tetris.dmitriy.tetris.game.figures.Figure;
  * Created by Dmitriy on 14.09.2016.
  */
 
-public class GlassView extends View {
+public class GlassView extends ImageView {
     private static final int WIDTH = 10;
     private static final int HEIGHT = 20;
 
-    private float mMarginH;
-    private float mMarginV;
+    private float mMarginWidth;
+    private float mMarginHeight;
 
     /** Elements for painting */
     private Paint mGlassBorderPaint;
     private Paint mGlassGridPaint;
     private Figure mCurrentFigure;
+
+    private Bitmap mImageView;
+
+    private int mPrevOrientation = 0;
+    private Point mPrevCoordinates;
 
     public GlassView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -40,25 +48,39 @@ public class GlassView extends View {
         mGlassGridPaint.setColor(ContextCompat.getColor(getContext(), R.color.glass_grid));
     }
 
+    public void setCurrentFigure(Figure mCurrentFigure) {
+        this.mCurrentFigure = mCurrentFigure;
+        mPrevCoordinates = new Point(mCurrentFigure.getX(), mCurrentFigure.getY());
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mMarginH = getRight() / WIDTH;
-        mMarginV = getBottom() / HEIGHT;
-        drawGlass(canvas);
+        mMarginWidth = getRight() / WIDTH;
+        mMarginHeight = getBottom() / HEIGHT;
+
+        if (mImageView == null) {
+            mImageView = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas1 = new Canvas(mImageView);
+            drawGlass(canvas1);
+            drawGrid(canvas1);
+        }
+        Canvas canvas1 = new Canvas(mImageView);
+        drawFigure(canvas1, mCurrentFigure);
+        setImageBitmap(mImageView);
     }
 
     private void drawGlass(Canvas canvas) {
         canvas.drawRect(new Rect(0, 0, getRight(), getBottom()), mGlassBorderPaint);
-//        TODO: need to optimize
-        for (int i = 0; i < WIDTH; i++) { // draw vertical grid
-            canvas.drawLine(i * mMarginH, 0, i * mMarginH, getBottom(), mGlassGridPaint);
-        }
-        for (int i = 0; i < HEIGHT; i++) { // draw horizontal grid
-            canvas.drawLine(0, i * mMarginV, getRight(), i * mMarginV, mGlassGridPaint);
-        }
+    }
 
-        drawFigure(canvas, mCurrentFigure);
+    private void drawGrid(Canvas canvas) {
+        for (int i = 0; i <HEIGHT; i++) {
+            for (int j = 0; j < WIDTH; j++) {
+                canvas.drawLine(i * mMarginWidth, 0, i * mMarginWidth, getBottom(), mGlassGridPaint);
+            }
+            canvas.drawLine(0, i * mMarginHeight, getRight(), i * mMarginHeight, mGlassGridPaint);
+        }
     }
 
     public void drawFigure(Canvas canvas, Figure figure) {
@@ -66,18 +88,50 @@ public class GlassView extends View {
             return;
         }
 
-//        int marginRight = WIDTH - x - 1; // WIDTH - x - figureWidth
-//        int marginBottom = HEIGHT - y - 4; // HEIGHT - y - figureHeight
+        Paint figurePaint = figure.getPaint();
+        final int currentOrientation = figure.getCurrentOrientation();
+        final int color = figurePaint.getColor();
 
-//        Paint figurePaint = figure.getPaint();;
-//        Bitmap bmp = figure.draw((int)mMarginH, (int)mMarginV);
-//        canvas.drawBitmap(bmp, figure.getCurrentCords().x * mMarginH, figure.getCurrentCords().y * mMarginV, figurePaint);
+        figure.setOrientation(mPrevOrientation);
+        figurePaint.setColor(Color.argb(255, 0, 0, 0));
+//        TODO: need to check, sometimes figure.draw(...) return null
+        Bitmap clearFigure = figure.draw((int) mMarginWidth, (int) mMarginHeight);
+        canvas.drawBitmap(clearFigure, (mPrevCoordinates.x - 1) * mMarginWidth, mPrevCoordinates.y * mMarginHeight, figurePaint);
+        clearFigure.recycle();
 
-//        bmp.recycle();
+        figure.setOrientation(currentOrientation);
+        figurePaint.setColor(color);
+        Bitmap figureBitmap = figure.draw((int) mMarginWidth, (int) mMarginHeight);
+        canvas.drawBitmap(figureBitmap, (figure.getX() - 1) * mMarginWidth, figure.getY() * mMarginHeight, figurePaint);
+        figureBitmap.recycle();
+
+        mPrevCoordinates.x = figure.getX();
+        mPrevCoordinates.y = figure.getY();
+        mPrevOrientation = currentOrientation;
+
+        drawGrid(canvas);
     }
 
-    public void setCurrentFigure(Figure mCurrentFigure) {
-        this.mCurrentFigure = mCurrentFigure;
+    public void clearLines(int yLine, int clearLinesCount) {
+        Bitmap currentBitmap = ((BitmapDrawable)getDrawable()).getBitmap();
+
+        Bitmap beforeClearLine = Bitmap.createBitmap(currentBitmap, 0, 0, getWidth(), (int)(yLine * mMarginHeight));
+        Bitmap afterClearLine = Bitmap.createBitmap(currentBitmap, 0, (int)((yLine + clearLinesCount) * mMarginHeight), getWidth(), (int)(getHeight() - ((yLine + clearLinesCount) * mMarginHeight)) );
+
+        mImageView.recycle();
+        mImageView = Bitmap.createBitmap(currentBitmap.getWidth(), currentBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(mImageView);
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
+        drawGlass(canvas);
+        drawGrid(canvas);
+        canvas.drawBitmap(beforeClearLine, 0, (clearLinesCount * mMarginHeight), paint);
+        canvas.drawBitmap(afterClearLine, 0, ((yLine + clearLinesCount) * mMarginHeight), paint);
+        setImageBitmap(mImageView);
+
+        currentBitmap.recycle();
+        beforeClearLine.recycle();
+        afterClearLine.recycle();
     }
 
 }
