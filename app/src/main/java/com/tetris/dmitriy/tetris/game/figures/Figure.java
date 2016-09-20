@@ -17,6 +17,24 @@ public abstract class Figure {
 
     private Point mCurrentCords;
 
+    private enum FigureTypes {
+        I, J
+    }
+
+    public static Figure createRandomFigure() {
+        Random rnd = new Random();
+        int index = rnd.nextInt(FigureTypes.values().length);
+        FigureTypes type = FigureTypes.values()[index];
+        switch (type) {
+            case I:
+                return new FigureI();
+            case J:
+                return new FigureJ();
+                default:
+                    return null;
+        }
+    }
+
     /**
      * currentOrientation - I mean a rotate angle of current figure
      * 0 - 0 deg, default
@@ -60,7 +78,7 @@ public abstract class Figure {
 
     public int randColor() {
         Random rnd = new Random();
-        return Color.argb(200, rnd.nextInt(250), rnd.nextInt(250), rnd.nextInt(250));
+        return Color.argb(255, rnd.nextInt(250), rnd.nextInt(250), rnd.nextInt(250));
     }
 
     public int[][] getFigure() {
