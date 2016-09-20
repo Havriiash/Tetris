@@ -1,6 +1,5 @@
 package com.tetris.dmitriy.tetris;
 
-import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +10,7 @@ import com.tetris.dmitriy.tetris.game.Events;
 import com.tetris.dmitriy.tetris.game.GlassController;
 import com.tetris.dmitriy.tetris.game.GlassModel;
 import com.tetris.dmitriy.tetris.game.GlassView;
+import com.tetris.dmitriy.tetris.game.figures.Figure;
 
 
 public class GameActivity extends AppCompatActivity {
@@ -83,6 +83,7 @@ public class GameActivity extends AppCompatActivity {
 
     /** GlassController interface implementation */
     private GlassController mGlassController = new GlassController() {
+
         @Override
         public void onChangeScores(int scores) {
             mScoreTxt.setText(Integer.toString(scores));
@@ -94,9 +95,21 @@ public class GameActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onChangeNextFigure(Bitmap figure) {
-            mNextFigureImg.setImageBitmap(figure);
+        public void onChangeNextFigure(Figure figure) {
+            mNextFigureImg.setImageBitmap(figure.draw(mNextFigureImg.getWidth(), mNextFigureImg.getHeight()));
+            mGlassView.setCurrentFigure(figure);
         }
+
+        @Override
+        public void onClearLines(int yLine,int clearLinesCount) {
+            mGlassView.clearLines(yLine, clearLinesCount);
+        }
+
+        @Override
+        public void onRefresh() {
+            mGlassView.invalidate();
+        }
+
     };
 
 }
