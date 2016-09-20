@@ -1,14 +1,13 @@
 package com.tetris.dmitriy.tetris.game;
 
-import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.util.Pair;
 
 import com.tetris.dmitriy.tetris.game.figures.Figure;
-import com.tetris.dmitriy.tetris.game.figures.FigureI;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -46,7 +45,10 @@ public class GlassModel
 
     /** method to refresh model after GameEvents */
     private void invalidate() {
-        clearCoordinates(new Point(mCurrentFigure.getX(), mCurrentFigure.getY()));
+        final Point currentCoordinates = new Point(mCurrentFigure.getX(), mCurrentFigure.getY());
+        clearCoordinates(currentCoordinates);
+
+        handleMessage(MessageTypes.REFRESH, null);
 
         setFigure();
 
@@ -149,10 +151,10 @@ public class GlassModel
     }
 
     private void nextFigure() {
-        mCurrentFigure = new FigureI();
-        mNextCoordinates = new Point(mCurrentFigure.getX(), mCurrentFigure.getY() -1);
+        mCurrentFigure = Figure.createRandomFigure();
+        mNextCoordinates = new Point(mCurrentFigure.getX(), mCurrentFigure.getY() - 1);
 
-        handleMessage(MessageTypes.NEXT_FIGURE, mCurrentFigure.draw(150, 150));
+        handleMessage(MessageTypes.NEXT_FIGURE, mCurrentFigure);
     }
 
     private void changeCoordinates() {
@@ -176,8 +178,11 @@ public class GlassModel
             for (Integer line : fullLines) {
                 mPlayField.clearLine(line);
             }
-            shiftToBottom(fullLines[fullLines.length - 1], fullLines.length);
+            final int yLine = fullLines[fullLines.length - 1];
+            shiftToBottom(yLine, fullLines.length);
             calculateScores(fullLines.length);
+
+            handleMessage(MessageTypes.CLEAR_LINE, new Pair<>(yLine, fullLines.length));
         }
     }
 
@@ -314,6 +319,7 @@ public class GlassModel
 
         @Override
         public void onRotate() {
+//            TODO: need to check, have bugs
             if (canRotate()) {
                 mCurrentFigure.rotate();
             }
@@ -321,7 +327,6 @@ public class GlassModel
 
         @Override
         public void onFallDown() {
-//            TODO: maybe must be animated
             while (!mBottom) {
                 onAction(Events.MOVE_DOWN);
             }
@@ -340,7 +345,15 @@ public class GlassModel
                     mGlassController.onChangeLevel((Integer) message.obj);
                     break;
                 case MessageTypes.NEXT_FIGURE:
-                    mGlassController.onChangeNextFigure((Bitmap) message.obj);
+                    mGlassController.onChangeNextFigure((Figure) message.obj);
+                    break;
+                case MessageTypes.REFRESH:
+                    mGlassController.onRefresh();
+                    break;
+                case MessageTypes.CLEAR_LINE:
+                    int yLine = (Integer)((Pair)message.obj).first;
+                    int linesCount = (Integer)((Pair)message.obj).second;
+                    mGlassController.onClearLines(yLine, linesCount);
                     break;
             }
             return false;
@@ -371,10 +384,4 @@ interface GameEvents {
     void onEndGame();
 
     void onAction(Events event);
-}
-
-class MessageTypes {
-    public static final int SCORES = 0;
-    public static final int LEVEL = 1;
-    public static final int NEXT_FIGURE = 2;
 }
