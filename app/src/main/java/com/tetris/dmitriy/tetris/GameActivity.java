@@ -97,7 +97,7 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public void onChangeNextFigure(Figure figure) {
             mNextFigureImg.setImageBitmap(figure.draw(mNextFigureImg.getWidth(), mNextFigureImg.getHeight()));
-            mGlassView.setCurrentFigure(figure);
+            mGlassView.setCurrentFigure(mGlassModel.currentFigure);
         }
 
         @Override
