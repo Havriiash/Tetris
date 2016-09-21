@@ -94,10 +94,11 @@ public class GlassView extends ImageView {
 
         figure.setOrientation(mPrevOrientation);
         figurePaint.setColor(Color.argb(255, 0, 0, 0));
-//        TODO: need to check, sometimes figure.draw(...) return null
         Bitmap clearFigure = figure.draw((int) mMarginWidth, (int) mMarginHeight);
-        canvas.drawBitmap(clearFigure, (mPrevCoordinates.x - 1) * mMarginWidth, mPrevCoordinates.y * mMarginHeight, figurePaint);
-        clearFigure.recycle();
+        if (clearFigure != null) {
+            canvas.drawBitmap(clearFigure, (mPrevCoordinates.x - 1) * mMarginWidth, mPrevCoordinates.y * mMarginHeight, figurePaint);
+            clearFigure.recycle();
+        }
 
         figure.setOrientation(currentOrientation);
         figurePaint.setColor(color);
