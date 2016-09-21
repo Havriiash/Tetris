@@ -27,7 +27,8 @@ public class GlassModel
     private int mTimerPeriod = 1 * 1000; // 1 sec
     private GlassController mGlassController;
 
-    private Figure mCurrentFigure;
+    private Figure.FigureTypes mNextFigureType;
+    public Figure currentFigure;
     private Point mNextCoordinates;
     private Events mEvent;
     private boolean mBottom = false;
@@ -41,18 +42,18 @@ public class GlassModel
     public GlassModel(GlassController glassController) {
         mPlayField = new PlayField();
         mGlassController = glassController;
+        mNextFigureType = Figure.getRandomType();
     }
 
     /** method to refresh model after GameEvents */
     private void invalidate() {
-        final Point currentCoordinates = new Point(mCurrentFigure.getX(), mCurrentFigure.getY());
+        final Point currentCoordinates = new Point(currentFigure.getX(), currentFigure.getY());
         clearCoordinates(currentCoordinates);
-
-        handleMessage(MessageTypes.REFRESH, null);
 
         setFigure();
 
         mPlayField.print();
+        handleMessage(MessageTypes.REFRESH, null);
         Log.d("PlayField", "end of line");
     }
 
@@ -63,8 +64,8 @@ public class GlassModel
             fillPlayField(mNextCoordinates);
             changeCoordinates();
         } else if (state == Collision.BORDER || state == Collision.FIGURE_BORDER) {
-            mNextCoordinates.x = mCurrentFigure.getX();
-            fillPlayField(new Point(mCurrentFigure.getX(), mCurrentFigure.getY()));
+            mNextCoordinates.x = currentFigure.getX();
+            fillPlayField(new Point(currentFigure.getX(), currentFigure.getY()));
             changeCoordinates();
         } else {
             mBottom = true;
@@ -75,7 +76,7 @@ public class GlassModel
 
     private Collision hasCollision() {
         Point checkPoint = new Point();
-        int[][] f = mCurrentFigure.getFigure();
+        int[][] f = currentFigure.getFigure();
         for (int i = 0; i < Figure.HEIGHT; i++) {
             for (int j = 0; j < Figure.WIDTH; j++) {
                 checkPoint.x = mNextCoordinates.x + j;
@@ -101,16 +102,16 @@ public class GlassModel
     }
 
     private boolean canRotate() {
-        clearCoordinates(new Point(mCurrentFigure.getX(), mCurrentFigure.getY()));
+        clearCoordinates(new Point(currentFigure.getX(), currentFigure.getY()));
         return !isRotateCollision();
     }
 
     private boolean isRotateCollision() {
-        final int fOrientation = mCurrentFigure.getCurrentOrientation();
-        mCurrentFigure.rotate();
+        final int fOrientation = currentFigure.getCurrentOrientation();
+        currentFigure.rotate();
 
         Point checkPoint = new Point();
-        int[][] f = mCurrentFigure.getFigure();
+        int[][] f = currentFigure.getFigure();
         for (int i = 0; i < Figure.HEIGHT; i++) {
             for (int j = 0; j < Figure.WIDTH; j++) {
                 checkPoint.x = mNextCoordinates.x + j;
@@ -118,22 +119,22 @@ public class GlassModel
                 if (f[i][j] == 1) {
                     if (mPlayField.getState(checkPoint) == 1
                             || mPlayField.getState(checkPoint) == -1) {
-                        mCurrentFigure.setOrientation(fOrientation);
+                        currentFigure.setOrientation(fOrientation);
                         return true;
                     }
                 }
             }
         }
-        mCurrentFigure.setOrientation(fOrientation);
+        currentFigure.setOrientation(fOrientation);
         return false;
     }
 
     private void clearCoordinates(Point start) {
-        fill(mCurrentFigure, start, 0);
+        fill(currentFigure, start, 0);
     }
 
     private void fillPlayField(Point start) {
-        fill(mCurrentFigure, start, 1);
+        fill(currentFigure, start, 1);
     }
 
     private void fill(Figure figure, Point start, int state) {
@@ -151,18 +152,19 @@ public class GlassModel
     }
 
     private void nextFigure() {
-        mCurrentFigure = Figure.createRandomFigure();
-        mNextCoordinates = new Point(mCurrentFigure.getX(), mCurrentFigure.getY() - 1);
+        currentFigure = Figure.createFigure(mNextFigureType);
+        mNextFigureType = Figure.getRandomType();
+        mNextCoordinates = new Point(currentFigure.getX(), currentFigure.getY());
 
-        handleMessage(MessageTypes.NEXT_FIGURE, mCurrentFigure);
+        handleMessage(MessageTypes.NEXT_FIGURE, Figure.createFigure(mNextFigureType));
     }
 
     private void changeCoordinates() {
-        mCurrentFigure.setCurrentCords(mNextCoordinates);
+        currentFigure.setCurrentCords(mNextCoordinates);
     }
 
     private void fixedFigure() {
-        final Point currentCoordinates = new Point(mCurrentFigure.getX(), mCurrentFigure.getY());
+        final Point currentCoordinates = new Point(currentFigure.getX(), currentFigure.getY());
         fillPlayField(currentCoordinates);
         nextFigure();
     }
@@ -319,9 +321,8 @@ public class GlassModel
 
         @Override
         public void onRotate() {
-//            TODO: need to check, have bugs
             if (canRotate()) {
-                mCurrentFigure.rotate();
+                currentFigure.rotate();
             }
         }
 
