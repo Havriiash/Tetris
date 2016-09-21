@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -16,15 +18,28 @@ public abstract class Figure {
     public static final int HEIGHT = 4;
 
     private Point mCurrentCords;
+    public static final ArrayList<Integer> sColors = new ArrayList<>(
+            Arrays.asList(
+                    new Integer(Color.rgb(200, 0 ,0)),
+                    new Integer(Color.rgb(0, 200, 0)),
+                    new Integer(Color.rgb(0, 0, 200)),
+                    new Integer(Color.rgb(200, 200, 0)),
+                    new Integer(Color.rgb(205, 0, 150)),
+                    new Integer(Color.rgb(250, 100, 0))
+                         )
+    );
 
-    private enum FigureTypes {
-        I, J, L, O, S, Z
+    public enum FigureTypes {
+        I, J, L, O, S, Z, T
     }
 
-    public static Figure createRandomFigure() {
-        Random rnd = new Random();
-        int index = rnd.nextInt(FigureTypes.values().length);
-        FigureTypes type = FigureTypes.values()[index];
+    /** create figure by type, if type is null, method will create random figure */
+    public static Figure createFigure(FigureTypes type) {
+        if (type == null) {
+            Random rnd = new Random();
+            int index = rnd.nextInt(FigureTypes.values().length);
+            type = FigureTypes.values()[index];
+        }
         switch (type) {
             case I:
                 return new FigureI();
@@ -38,9 +53,17 @@ public abstract class Figure {
                 return new FigureS();
             case Z:
                 return new FigureZ();
-                default:
-                    return null;
+            case T:
+                return new FigureT();
+            default:
+                return null;
         }
+    }
+
+    public static FigureTypes getRandomType() {
+        Random rnd = new Random();
+        int index = rnd.nextInt(FigureTypes.values().length);
+        return FigureTypes.values()[index];
     }
 
     /**
@@ -86,7 +109,8 @@ public abstract class Figure {
 
     public int randColor() {
         Random rnd = new Random();
-        return Color.argb(255, rnd.nextInt(250), rnd.nextInt(250), rnd.nextInt(250));
+        int index = rnd.nextInt(sColors.size());
+        return sColors.get(index);
     }
 
     public int[][] getFigure() {
