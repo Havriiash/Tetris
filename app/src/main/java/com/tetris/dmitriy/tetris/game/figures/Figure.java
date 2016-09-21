@@ -18,7 +18,7 @@ public abstract class Figure {
     private Point mCurrentCords;
 
     private enum FigureTypes {
-        I, J
+        I, J, L, O, S, Z
     }
 
     public static Figure createRandomFigure() {
@@ -30,6 +30,14 @@ public abstract class Figure {
                 return new FigureI();
             case J:
                 return new FigureJ();
+            case L:
+                return new FigureL();
+            case O:
+                return new FigureO();
+            case S:
+                return new FigureS();
+            case Z:
+                return new FigureZ();
                 default:
                     return null;
         }
