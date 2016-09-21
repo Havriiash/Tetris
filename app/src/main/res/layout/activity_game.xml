@@ -17,23 +17,25 @@
             <com.tetris.dmitriy.tetris.game.GlassView
                 android:id="@+id/ActivityGame_GlassView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_margin="1dp"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_margin="5dp">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/game_activity_next_figure"
                 android:gravity="center"/>
-            <ImageView
+            <com.tetris.dmitriy.tetris.game.NextFigureView
                 android:id="@+id/ActivityGame_NextFigureImg"
-                android:src="@mipmap/ic_launcher"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_width="120dp"
+                android:layout_height="100dp"
+                android:background="@color/next_figure_background"
                 android:padding="@dimen/padding_default"/>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -70,37 +72,58 @@
    <LinearLayout
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:orientation="horizontal">
-       <Button
+       android:orientation="horizontal"
+       android:layout_margin="1dp">
+       <TextView
            android:id="@+id/ActivityGame_LeftBtn"
            android:layout_weight="1"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:text="Left"/>
-       <Button
+           android:text="\u2190"
+           android:textSize="35dp"
+           android:gravity="center"
+           android:background="@drawable/button"
+           android:textColor="@color/glass_background"  />
+       <TextView
            android:id="@+id/ActivityGame_RotateBtn"
            android:layout_weight="1"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:text="Rotate"/>
-       <Button
+           android:textSize="35dp"
+           android:text="\u21BB"
+           android:gravity="center"
+           android:textColor="@color/glass_background"
+           android:background="@drawable/button"/>
+       <TextView
            android:id="@+id/ActivityGame_FallDownBtn"
            android:layout_weight="1"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:text="Fall"/>
-       <Button
+           android:textSize="35dp"
+           android:text="\u21A1"
+           android:gravity="center"
+           android:textColor="@color/glass_background"
+           android:background="@drawable/button"/>
+       <TextView
            android:id="@+id/ActivityGame_DownBtn"
            android:layout_weight="1"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:text="Down"/>
-       <Button
+           android:textSize="35dp"
+           android:text="\u2193"
+           android:gravity="center"
+           android:textColor="@color/glass_background"
+           android:background="@drawable/button"/>
+       <TextView
            android:id="@+id/ActivityGame_RightBtn"
            android:layout_weight="1"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:text="Right"/>
+           android:textSize="35dp"
+           android:text="\u2192"
+           android:gravity="center"
+           android:textColor="@color/glass_background"
+           android:background="@drawable/button"/>
    </LinearLayout>
 </LinearLayout>
 
