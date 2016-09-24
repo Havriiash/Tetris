@@ -3,28 +3,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:padding="@dimen/padding_default"
     android:orientation="vertical"
-    tools:context="com.tetris.dmitriy.tetris.MainActivity">
+    tools:context="com.tetris.dmitriy.tetris.MainActivity"
+    android:background="@drawable/back">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_margin="@dimen/padding_default">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="#ffffff"
+            android:gravity="center"
+            android:textSize="40dp"
+            android:layout_marginBottom="20dp"/>
         <Button
             android:id="@+id/ActivityMain_NewGameBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/game_menu_new_game"/>
-        <Button
-            android:id="@+id/ActivityMain_SettingsBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/game_menu_settings"/>
         <Button
             android:id="@+id/ActivityMain_RecordsBtn"
             android:layout_width="match_parent"
