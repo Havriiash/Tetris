@@ -4,7 +4,6 @@ import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.util.Pair;
 
 import com.tetris.dmitriy.tetris.game.figures.Figure;
@@ -19,19 +18,22 @@ import java.util.TimerTask;
 public class GlassModel
         implements GameEvents {
 
-    private static final String TIMER_NAME = "com.tetris.dmitriy.tetris.GameActivity.GameTimer";
     private static final int LINE_PRICE = 100; // scores for one line collection
     private static final int LEVEL_UP_FACTOR = 1000;
 
     private Timer mTimer;
-    private int mTimerPeriod = 1 * 1000; // 1 sec
+    private int mTimerPeriod = 1000; // 1 sec
     private GlassController mGlassController;
 
     private Figure.FigureTypes mNextFigureType;
-    public Figure currentFigure;
     private Point mNextCoordinates;
     private Events mEvent;
+
+    private boolean mPause = false;
+    private boolean mTop = false;
     private boolean mBottom = false;
+
+    public Figure currentFigure;
 
     /** Scores */
     private int mScores = 0;
@@ -52,9 +54,9 @@ public class GlassModel
 
         setFigure();
 
-        mPlayField.print();
+//        mPlayField.print();
         handleMessage(MessageTypes.REFRESH, null);
-        Log.d("PlayField", "end of line");
+//        Log.d("PlayField", "end of line");
     }
 
     private void setFigure() {
@@ -69,9 +71,13 @@ public class GlassModel
             changeCoordinates();
         } else {
             mBottom = true;
+            if (currentFigure.getY() == 0) {
+                mTop = true;
+            }
             fixedFigure();
             clearLines();
         }
+        mTop = false;
     }
 
     private Collision hasCollision() {
@@ -152,6 +158,9 @@ public class GlassModel
     }
 
     private void nextFigure() {
+        if (mTop) {
+            onEndGame();
+        }
         currentFigure = Figure.createFigure(mNextFigureType);
         mNextFigureType = Figure.getRandomType();
         mNextCoordinates = new Point(currentFigure.getX(), currentFigure.getY());
@@ -167,11 +176,6 @@ public class GlassModel
         final Point currentCoordinates = new Point(currentFigure.getX(), currentFigure.getY());
         fillPlayField(currentCoordinates);
         nextFigure();
-    }
-
-    private boolean isFullGlass() {
-//        TODO: need write a check option
-        return false;
     }
 
     private void clearLines() {
@@ -233,6 +237,10 @@ public class GlassModel
         if (temp > mLevel) {
             mLevel = temp;
             mTimerPeriod -= LINE_PRICE;
+            if (mTimerPeriod <= 0) {
+                mTimerPeriod = LINE_PRICE;
+            }
+            createTimer();
             handleMessage(MessageTypes.LEVEL, mLevel);
         }
         handleMessage(MessageTypes.SCORES, mScores);
@@ -246,36 +254,45 @@ public class GlassModel
         msg.sendToTarget();
     }
 
-    private TimerTask mTask = new TimerTask() {
-        @Override
-        public void run() {
-            onAction(Events.MOVE_DOWN);
+    private void createTimer() {
+        if (mTimer != null) {
+            mTimer.cancel();
+            mTimer.purge();
         }
-    };
+        mTimer = new Timer();
+        mTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                onAction(Events.MOVE_DOWN);
+            }
+        }, 0, mTimerPeriod);
+    }
+
+    public boolean isPause() {
+        return mPause;
+    }
 
     /** GameEvents interface implementation */
     @Override
     public void onStart() {
         nextFigure();
-
-        mTimer = new Timer(TIMER_NAME);
-        mTimer.schedule(mTask, 0, mTimerPeriod);
+        createTimer();
     }
 
     @Override
     public void onPause() {
-        /** save game state */
-        mTimer.cancel();
+        mPause = true;
     }
 
     @Override
     public void onResume() {
-
+        mPause = false;
     }
 
     @Override
     public void onEndGame() {
         mTimer.cancel();
+        handleMessage(MessageTypes.GAME_OVER, null);
     }
 
     /** all GameEvents from different threads must be synchronized */
@@ -334,7 +351,7 @@ public class GlassModel
         }
     };
 
-    /** Handler message int UI thread, callbacks GameController interface methods */
+    /** Handler message in UI thread, callbacks GameController interface methods */
     private Handler mHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
         public boolean handleMessage(Message message) {
@@ -355,6 +372,9 @@ public class GlassModel
                     int yLine = (Integer)((Pair)message.obj).first;
                     int linesCount = (Integer)((Pair)message.obj).second;
                     mGlassController.onClearLines(yLine, linesCount);
+                    break;
+                case MessageTypes.GAME_OVER:
+                    mGlassController.onGameOver();
                     break;
             }
             return false;
