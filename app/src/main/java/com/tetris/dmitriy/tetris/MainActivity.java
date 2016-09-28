@@ -31,7 +31,8 @@ public class MainActivity extends Activity {
     private View.OnClickListener onRecordsBtnClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
+            Intent recordsIntent = new Intent(MainActivity.this, RecordsActivity.class);
+            startActivity(recordsIntent);
         }
     };
 
