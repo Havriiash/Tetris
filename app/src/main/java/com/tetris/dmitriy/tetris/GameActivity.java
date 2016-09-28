@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -16,6 +18,7 @@ import com.tetris.dmitriy.tetris.game.Events;
 import com.tetris.dmitriy.tetris.game.GlassController;
 import com.tetris.dmitriy.tetris.game.GlassModel;
 import com.tetris.dmitriy.tetris.game.GlassView;
+import com.tetris.dmitriy.tetris.game.PlayField;
 import com.tetris.dmitriy.tetris.game.figures.Figure;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
@@ -105,6 +108,8 @@ public class GameActivity extends Activity {
         playMusic();
 
         mGlassView = (GlassView) findViewById(R.id.ActivityGame_GlassView);
+//        mGlassView.setOnClickListener(onRotateBtnClick);
+//        mGlassView.setOnTouchListener(mGlassTouchListener);
 
         setControlButtons(true);
     }
@@ -122,6 +127,8 @@ public class GameActivity extends Activity {
         mBtnFallDown.setEnabled(enabled);
         mBtnRotate.setEnabled(enabled);
         mPauseBtn.setEnabled(enabled);
+        mMusicSwitch.setEnabled(enabled);
+        mSoundSwitch.setEnabled(enabled);
     }
 
     private View.OnClickListener onPauseBtnClick = new View.OnClickListener() {
@@ -174,6 +181,38 @@ public class GameActivity extends Activity {
         }
     };
 
+    private View.OnTouchListener mGlassTouchListener = new View.OnTouchListener() {
+        private int mPreviousAction = MotionEvent.ACTION_CANCEL;
+
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
+                final int marginX = view.getWidth() / PlayField.WIDTH;
+                final int moveCell = (int)(motionEvent.getX() / marginX);
+                final int currCell = mGlassModel.getCurrentFigure().getX();
+                if (currCell > moveCell) {
+                    final int repeat = currCell - moveCell;
+                    for (int i = 0; i < repeat; i++) {
+                        mGlassModel.onAction(Events.MOVE_LEFT);
+                    }
+                } else {
+                    final int repeat = moveCell - currCell;
+                    for (int i = 0; i < repeat; i++) {
+                        mGlassModel.onAction(Events.MOVE_RIGHT);
+                    }
+                }
+                mPreviousAction = MotionEvent.ACTION_MOVE;
+                return true;
+            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP
+                    && mPreviousAction == MotionEvent.ACTION_MOVE) {
+                mPreviousAction = MotionEvent.ACTION_UP;
+                return true;
+            }
+            mPreviousAction = motionEvent.getAction();
+            return false;
+        }
+    };
+
     /** GlassController interface implementation */
     private GlassController mGlassController = new GlassController() {
         @Override
@@ -189,7 +228,7 @@ public class GameActivity extends Activity {
         @Override
         public void onChangeNextFigure(Figure figure) {
             mNextFigureImg.setImageBitmap(figure.draw(mNextFigureImg.getWidth(), mNextFigureImg.getHeight()));
-            mGlassView.setCurrentFigure(mGlassModel.currentFigure);
+            mGlassView.setCurrentFigure(mGlassModel.getCurrentFigure());
         }
 
         @Override
@@ -211,6 +250,9 @@ public class GameActivity extends Activity {
 
             setControlButtons(false);
             releaseMediaPlayer(mMusicPlayer);
+
+//        TODO: save record to database
+
         }
     };
 
