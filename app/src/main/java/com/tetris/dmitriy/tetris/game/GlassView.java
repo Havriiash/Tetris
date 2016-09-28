@@ -20,9 +20,6 @@ import com.tetris.dmitriy.tetris.game.figures.Figure;
  */
 
 public class GlassView extends ImageView {
-    private static final int WIDTH = 10;
-    private static final int HEIGHT = 20;
-
     private float mMarginWidth;
     private float mMarginHeight;
 
@@ -51,13 +48,14 @@ public class GlassView extends ImageView {
     public void setCurrentFigure(Figure mCurrentFigure) {
         this.mCurrentFigure = mCurrentFigure;
         mPrevCoordinates = new Point(mCurrentFigure.getX(), mCurrentFigure.getY());
+        mPrevOrientation = mCurrentFigure.getCurrentOrientation();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mMarginWidth = getRight() / WIDTH;
-        mMarginHeight = getBottom() / HEIGHT;
+        mMarginWidth = getRight() / PlayField.WIDTH;
+        mMarginHeight = getBottom() / PlayField.HEIGHT;
 
         if (mImageView == null) {
             mImageView = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
@@ -75,8 +73,8 @@ public class GlassView extends ImageView {
     }
 
     private void drawGrid(Canvas canvas) {
-        for (int i = 0; i <HEIGHT; i++) {
-            for (int j = 0; j < WIDTH; j++) {
+        for (int i = 0; i < PlayField.HEIGHT; i++) {
+            for (int j = 0; j < PlayField.WIDTH; j++) {
                 canvas.drawLine(i * mMarginWidth, 0, i * mMarginWidth, getBottom(), mGlassGridPaint);
             }
             canvas.drawLine(0, i * mMarginHeight, getRight(), i * mMarginHeight, mGlassGridPaint);
@@ -84,21 +82,19 @@ public class GlassView extends ImageView {
     }
 
     public void drawFigure(Canvas canvas, Figure figure) {
-        if (figure == null) {
-            return;
-        }
-
         Paint figurePaint = figure.getPaint();
         final int currentOrientation = figure.getCurrentOrientation();
         final int color = figurePaint.getColor();
 
+//        TODO: bug with clear figure sometimes
+
         figure.setOrientation(mPrevOrientation);
         figurePaint.setColor(Color.argb(255, 0, 0, 0));
         Bitmap clearFigure = figure.draw((int) mMarginWidth, (int) mMarginHeight);
-        if (clearFigure != null) {
-            canvas.drawBitmap(clearFigure, (mPrevCoordinates.x - 1) * mMarginWidth, mPrevCoordinates.y * mMarginHeight, figurePaint);
-            clearFigure.recycle();
-        }
+        canvas.drawBitmap(clearFigure, (mPrevCoordinates.x - 1) * mMarginWidth, mPrevCoordinates.y * mMarginHeight, figurePaint);
+        clearFigure.recycle();
+
+        drawGrid(canvas);
 
         figure.setOrientation(currentOrientation);
         figurePaint.setColor(color);
@@ -109,8 +105,6 @@ public class GlassView extends ImageView {
         mPrevCoordinates.x = figure.getX();
         mPrevCoordinates.y = figure.getY();
         mPrevOrientation = currentOrientation;
-
-        drawGrid(canvas);
     }
 
     public void clearLines(int yLine, int clearLinesCount) {
