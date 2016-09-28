@@ -13,4 +13,10 @@
     <string name="game_activity_pause">Pause</string>
     <string name="game_activity_resume">Resume</string>
     <string name="game_message_gameOver">Game Over!</string>
+
+    <!-- Records activity -->
+    <string name="records_activity_id">#</string>
+    <string name="records_activity_level">Level</string>
+    <string name="records_activity_score">Score</string>
+    <string name="records_activity_time">Time</string>
 </resources>
