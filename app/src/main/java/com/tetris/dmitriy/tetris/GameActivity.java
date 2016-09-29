@@ -1,6 +1,7 @@
 package com.tetris.dmitriy.tetris;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -21,6 +22,11 @@ import com.tetris.dmitriy.tetris.game.GlassView;
 import com.tetris.dmitriy.tetris.game.PlayField;
 import com.tetris.dmitriy.tetris.game.figures.Figure;
 import com.crashlytics.android.Crashlytics;
+import com.tetris.dmitriy.tetris.records.DBHelper;
+import com.tetris.dmitriy.tetris.records.Record;
+import com.tetris.dmitriy.tetris.records.RecordsService;
+import com.tetris.dmitriy.tetris.records.UpdateService;
+
 import io.fabric.sdk.android.Fabric;
 
 
@@ -243,7 +249,7 @@ public class GameActivity extends Activity {
         }
 
         @Override
-        public void onGameOver() {
+        public void onGameOver(final Record newRecord) {
             mMessageBoxLyt.setVisibility(View.VISIBLE);
             mMessageTxt.setText(R.string.game_message_gameOver);
             mAddInfoTxt.setText(null);
@@ -251,8 +257,23 @@ public class GameActivity extends Activity {
             setControlButtons(false);
             releaseMediaPlayer(mMusicPlayer);
 
-//        TODO: save record to database
-
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean result = RecordsService.hasNewRecord(new DBHelper(GameActivity.this).getReadableDatabase(), newRecord);
+                    if (result) {
+                        Intent updateIntent = new Intent(GameActivity.this, UpdateService.class);
+                        updateIntent.putExtra(UpdateService.PARAM_RECORD, newRecord);
+                        startService(updateIntent);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAddInfoTxt.setText(R.string.game_additional_message_new_record);
+                            }
+                        });
+                    }
+                }
+            }).start();
         }
     };
 
