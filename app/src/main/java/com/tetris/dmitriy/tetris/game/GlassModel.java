@@ -8,8 +8,10 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.tetris.dmitriy.tetris.game.figures.Figure;
+import com.tetris.dmitriy.tetris.records.Record;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,6 +35,10 @@ public class GlassModel
     private boolean mPause = false;
     private boolean mTop = false;
     private boolean mBottom = false;
+    private boolean mGame = false;
+
+    private Date mDateStartGame;
+    private Date mDateFinishGame;
 
     private Figure mCurrentFigure;
 
@@ -280,8 +286,10 @@ public class GlassModel
     /** GameEvents interface implementation */
     @Override
     public void onStart() {
+        mGame = true;
         nextFigure();
         createTimer();
+        mDateStartGame = new Date();
     }
 
     @Override
@@ -296,8 +304,14 @@ public class GlassModel
 
     @Override
     public void onEndGame() {
-        mTimer.cancel();
-        handleMessage(MessageTypes.GAME_OVER, null);
+        if (mGame) {
+            mTimer.cancel();
+            mDateFinishGame = new Date();
+            final Record newRecord = new Record(0, mLevel, mScores, mDateFinishGame.getTime() - mDateStartGame.getTime());
+            handleMessage(MessageTypes.GAME_OVER, newRecord);
+            mGame = false;
+            mDateStartGame = null;
+        }
     }
 
     /** all GameEvents from different threads must be synchronized */
@@ -379,7 +393,8 @@ public class GlassModel
                     mGlassController.onClearLines(yLine, linesCount);
                     break;
                 case MessageTypes.GAME_OVER:
-                    mGlassController.onGameOver();
+                    Record newRecord = (Record) message.obj;
+                    mGlassController.onGameOver(newRecord);
                     break;
             }
             return false;
