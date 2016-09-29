@@ -2,6 +2,7 @@ package com.tetris.dmitriy.tetris.game;
 
 
 import com.tetris.dmitriy.tetris.game.figures.Figure;
+import com.tetris.dmitriy.tetris.records.Record;
 
 /**
  * Created by Dmitriy on 20.09.2016.
@@ -14,5 +15,5 @@ public interface GlassController {
     void onClearLines(int yLine, int clearLinesCount);
 
     void onRefresh();
-    void onGameOver();
+    void onGameOver(final Record newRecord);
 }

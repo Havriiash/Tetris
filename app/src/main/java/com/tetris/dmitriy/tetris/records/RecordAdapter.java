@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.tetris.dmitriy.tetris.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
@@ -33,7 +34,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.ViewHolder
         holder.txtId.setText(Long.toString(item.getId()));
         holder.txtLevel.setText(Integer.toString(item.getLevel()));
         holder.txtScore.setText(Integer.toString(item.getScore()));
-        holder.txtTime.setText(Long.toString(item.getTime()));
+        holder.txtTime.setText((new SimpleDateFormat("mm:ss")).format(item.getTime()));
     }
 
     @Override

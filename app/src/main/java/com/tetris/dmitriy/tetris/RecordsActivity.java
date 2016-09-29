@@ -33,7 +33,7 @@ public class RecordsActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(null);
         switchVisibility(true);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRecordsReceiver, new IntentFilter(RecordsService.RESULT_ACTION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRecordsReceiver, new IntentFilter(RecordsService.SERVICE_ACTION));
         Intent getRecordsIntent = new Intent(this, RecordsService.class);
         startService(getRecordsIntent);
     }
