@@ -13,6 +13,7 @@
     <string name="game_activity_pause">Pause</string>
     <string name="game_activity_resume">Resume</string>
     <string name="game_message_gameOver">Game Over!</string>
+    <string name="game_additional_message_new_record">Have a new record!</string>
 
     <!-- Records activity -->
     <string name="records_activity_id">#</string>
