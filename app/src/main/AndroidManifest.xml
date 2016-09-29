@@ -23,6 +23,7 @@
         <activity android:name=".RecordsActivity" />
 
         <service android:name=".records.RecordsService" />
+        <service android:name=".records.UpdateService" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
