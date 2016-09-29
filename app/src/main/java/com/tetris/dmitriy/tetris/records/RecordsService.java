@@ -13,11 +13,10 @@ import java.util.ArrayList;
  */
 
 public class RecordsService extends IntentService {
-    private static final String SERVICE_NAME = "";
+    private static final String SERVICE_NAME = "com.tetris.dmitriy.tetris.records.RecordsService";
 
-    public static final String RESULT_ACTION = "com.tetris.dmitriy.tetris.records.RecordsService.Result";
-
-    public static final String PARAM_RESULT = "com.tetris.dmitriy.tetris.records.RecordsService.Param.Result";
+    public static final String SERVICE_ACTION = SERVICE_NAME + ".Action";
+    public static final String PARAM_RESULT = SERVICE_NAME + ".Param.Result";
 
     public RecordsService() {
         super(SERVICE_NAME);
@@ -25,15 +24,14 @@ public class RecordsService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        final ArrayList<Record> recordsLst = getRecords();
-        Intent resultIntent = new Intent(RESULT_ACTION);
+        final ArrayList<Record> recordsLst = getRecords(new DBHelper(this).getReadableDatabase());
+        Intent resultIntent = new Intent(SERVICE_ACTION);
         resultIntent.putParcelableArrayListExtra(PARAM_RESULT, recordsLst);
         LocalBroadcastManager.getInstance(this).sendBroadcast(resultIntent);
     }
 
-    private ArrayList<Record> getRecords() {
+    public static ArrayList<Record> getRecords(final SQLiteDatabase db) {
         ArrayList<Record> resultLst = new ArrayList<>();
-        SQLiteDatabase db = new DBHelper(this).getWritableDatabase();
         Cursor cursor = db.query(DBHelper.RECORDS, null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             do {
@@ -48,6 +46,24 @@ public class RecordsService extends IntentService {
         cursor.close();
         db.close();
         return resultLst;
+    }
+
+    /** this method need to call not from main thread */
+    public static boolean hasNewRecord(final SQLiteDatabase db, final Record newRecord) {
+        boolean result = false;
+        String[] columns = new String[] {DBHelper.RECORDS_GAME_SCORES};
+        String selection = DBHelper.RECORDS_GAME_SCORES + " <  ? ";
+        String limit = "1";
+        String[] args = new String[] { Integer.toString(newRecord.getScore()) };
+
+        Cursor cursor = db.query(DBHelper.RECORDS ,columns, selection, args, null, null, null, limit);
+        if (cursor.moveToFirst()) {
+            result = true;
+        }
+
+        cursor.close();
+        db.close();
+        return result;
     }
 
 }
